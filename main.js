@@ -68,7 +68,7 @@
   backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   // Typewriter effect
-  const taglines = ["Innovating Realities.", "Bridging Physical & Digital.", "Powering Smart Automation."];
+  const taglines = ["Where Physical Systems Meet Digital Precision", "Navigation Beyond GPS. Intelligence Beyond Sensors.", "Digital Twins That Think, See, and Guide."];
   let taglineEl = document.getElementById('tagline');
   let taglineIndex = 0;
   let charIndex = 0;
