@@ -1,70 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StateQ</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(to right, #141e30, #243b55);
-      color: white;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 700px;
-      padding: 20px;
-    }
-
-    .brand {
-      font-size: 3.5em;
-      font-weight: bold;
-      margin-bottom: 0.5em;
-      transition: transform 0.4s ease;
-    }
-    
-    .brand .highlight {
-      color: #00d4ff;
-    }
-
-
-    .brand:hover {
-      transform: scale(1.05);
-    }
-
-    
-    .quote {
-      font-size: 1.3em;
-      font-style: italic;
-      margin: 1.5em 0;
-      color: #cccccc;
-    }
-
-    .author {
-      font-size: 1em;
-      color: #888888;
-      margin-bottom: 1.5em;
-    }
-
-    .footer-note {
-      margin-top: 2em;
-      font-size: 0.9em;
-      color: #aaaaaa;
-    }
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>StateQ Dynamics</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body>
-  <div class="container">
-    <div class="brand">State<span class="highlight">Q</span> Dynamics</div>
-    <div class="footer-note">This website is currently under construction.</div>
-  </div>
+    <div id="scroll-progress" aria-hidden="true"></div>
+
+    <!-- Preloader -->
+    <div id="preloader" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loader">
+            <div class="spinner" aria-hidden="true"></div>
+            <span>Loading…</span>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="glass-navbar" aria-label="Primary">
+        <div class="nav-inner">
+            <img class="logo" src="./assets/Navigation.svg" alt="StateQ Dynamics Logo" style="width: 60px;" />
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero-section">
+        <div class="container hero-content" data-reveal>
+            <img src="./assets/Navigation.svg" style="width: 350px;" alt="StateQ Logo" />
+            <h1 class="glow">StateQ Dynamics Pvt. Ltd.</h1>
+            <p id="tagline" style="height: 30px;" class="typewriter"></p>
+            <p>Transforming Industries with Cutting-Edge Technologies is a deep-tech startup incubated at the Technology
+                Innovation Foundation of IIT Palakkad (TECHIN).</p>
+            <!-- <div class="hero-ctas">
+                <a href="#contact" class="btn-outline" data-scroll>Founders</a>
+            </div> -->
+            <!-- <div class="scroll-down">&#8595;</div> -->
+        </div>
+    </header>
+
+    <!-- About -->
+    <section id="about" class="about-section">
+        <div class="container" data-reveal>
+            <h2 class="section-title">About Us</h2>
+            <p class="section-desc">With a focus on innovation and real-world impact, our technologies are engineered to
+                bridge the gap between physical systems and their virtual counterparts, enabling smarter, more
+                efficient, and adaptive automation solutions.</p>
+            <h3 class="section-title">Our Vision</h3>
+            <p class="section-desc">To pioneer intelligent, scalable systems that power the future of automation,
+                communication, and simulation.</p>
+        </div>
+    </section>
+
+
+    <!-- Founders Section -->
+    <section id="contact" class="contact-section">
+        <div class="container" data-reveal>
+            <div class="cta">
+                <section id="founders" class="founders-section">
+                    <div class="container" data-reveal>
+                        <h2 class="section-title">Meet the Founders</h2>
+                        <div class="founder-cards">
+
+                            <a href="https://www.linkedin.com/in/aneesh-swaminathan/" target="_blank"
+                                rel="noopener noreferrer">
+                                <div class="card">
+                                    <div class="card__hero-header"><img src="./assets/two.jpeg"
+                                            alt="Mr. Aneesh Swaminathan" loading="lazy"></div>
+                                    <h3>Mr. Aneesh Swaminathan</h3>
+                                </div>
+                            </a>
+
+
+                            <a href="https://www.linkedin.com/in/shaikshavali-c-a5886418/" target="_blank"
+                                rel="noopener noreferrer">
+                                <div class="card">
+                                    <div class="card__hero-header"><img src="./assets/one.jpeg"
+                                            alt="Dr. Shaikshavali Chitraganti" loading="lazy"></div>
+                                    <h3>Dr. Shaikshavali Chitraganti</h3>
+                                </div>
+                            </a>
+
+                            <a href="https://www.linkedin.com/in/nandagopan-kalathil/" target="_blank"
+                                rel="noopener noreferrer">
+                                <div class="card">
+                                    <div class="card__hero-header"><img src="./assets/three.jpeg"
+                                            alt="Mr. Nandagopan Kalathil" loading="lazy"></div>
+                                    <h3>Mr. Nandagopan Kalathil</h3>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <img src="./assets/Navigation.svg" alt="Logo" style="width: 50px;">
+        <p>StateQ Dynamics Pvt. Ltd.</p>
+        <div class="license">© <span id="year"></span> All rights reserved.</div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button id="backToTop" aria-label="Back to top" title="Back to top">&#8679;</button>
+
+    <!-- External Script -->
+    <script src="main.js"></script>
 </body>
+
 </html>
