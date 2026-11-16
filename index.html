@@ -3,137 +3,298 @@
 
 <head>
     <meta charset="utf-8" />
+    <script>
+        document.documentElement.classList.add('js');
+        try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+        // Hidden reveal content must not stay hidden if main.js or GSAP never runs.
+        setTimeout(() => window.motionReady || document.documentElement.classList.remove('js'), 3000);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>StateQ Dynamics</title>
+    <title>StateQ Dynamics — GPS-denied drones for confined space inspection</title>
+    <link rel="icon" href="./favicon.ico" sizes="48x48">
     <link rel="icon" type="image/svg+xml" href="./assets/Navigationclr.svg">
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="StateQ Dynamics Pvt. Ltd. is a deep-tech startup specializing in intelligent digital twins, sensor fusion, resilient navigation, and real-time simulation for autonomous, reliable, and intelligent systems." />
-    <meta name="keywords" content="StateQ, StateQ Dynamics, digital twin, sensor fusion, navigation, simulation, robotics, AI, TECHIN, IIT Palakkad, startup, autonomous systems, India" />
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <meta name="theme-color" content="#080a0e" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- SEO -->
+    <meta name="description" content="Autonomous GPS-denied drones that fly and map confined spaces in 3D: underground mines, tunnels, tanks and collapsed buildings. Built at IIT Palakkad." />
+    <meta name="keywords" content="GPS-denied drone, drone navigation without GPS, confined space inspection drone, underground mine mapping drone, post-blast inspection, stope mapping, tunnel inspection drone, indoor drone mapping, LiDAR SLAM drone, search and rescue drone, autonomous drone India, StateQ Dynamics, IIT Palakkad" />
     <meta name="author" content="StateQ Dynamics Pvt. Ltd." />
     <link rel="canonical" href="https://stateq.in/" />
-    <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="StateQ Dynamics Pvt. Ltd." />
-    <meta property="og:description" content="We design intelligent digital twins and resilient navigation systems for the future of autonomous and reliable machines." />
-    <meta property="og:image" content="https://stateq.in/assets/SQD.svg" />
+    <meta property="og:title" content="StateQ Dynamics — GPS-denied drones for confined space inspection" />
+    <meta property="og:description" content="Autonomous drones that fly and map in 3D without GPS: underground mines, tunnels, tanks and disaster sites." />
+    <meta property="og:image" content="https://stateq.in/assets/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="StateQ Dynamics: GPS-denied drone navigation, shown over a 3D LiDAR map of a cave" />
+    <meta property="og:site_name" content="StateQ Dynamics" />
+    <meta property="og:locale" content="en_IN" />
     <meta property="og:url" content="https://stateq.in/" />
     <meta property="og:type" content="website" />
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="StateQ Dynamics Pvt. Ltd." />
-    <meta name="twitter:description" content="We design intelligent digital twins and resilient navigation systems for the future of autonomous and reliable machines." />
-    <meta name="twitter:image" content="https://stateq.in/assets/SQD.svg" />
+    <meta name="twitter:title" content="StateQ Dynamics — GPS-denied drones for confined space inspection" />
+    <meta name="twitter:description" content="Autonomous drones that fly and map in 3D without GPS: underground mines, tunnels, tanks and disaster sites." />
+    <meta name="twitter:image" content="https://stateq.in/assets/og-image.jpg" />
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Organization","name":"StateQ Dynamics Pvt. Ltd.","url":"https://stateq.in/","logo":"https://stateq.in/assets/icon-512.png","email":"nandu@stateq.in","description":"Autonomous GPS-denied drones for confined space inspection and 3D mapping: underground mines, tunnels, industrial tanks and disaster sites.","knowsAbout":["GPS-denied navigation","confined space inspection","underground mine mapping","post-blast inspection","stope mapping","tunnel inspection","LiDAR SLAM","search and rescue drones"],"founder":[{"@type":"Person","name":"Dr. Shaikshavali Chitraganti"},{"@type":"Person","name":"Nandagopan Kalathil"}],"address":{"@type":"PostalAddress","addressLocality":"Palakkad","addressRegion":"Kerala","addressCountry":"IN"}}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preload" href="./assets/data/cave.points.gz" as="fetch" type="application/gzip" crossorigin>
+    <link rel="preload" href="./assets/data/cave.json" as="fetch" type="application/json" crossorigin>
+    <script type="importmap">
+    { "imports": { "three": "./assets/vendor/three/build/three.module.min.js", "three/addons/": "./assets/vendor/three/examples/jsm/" } }
+    </script>
+    <link rel="modulepreload" href="./assets/vendor/three/build/three.module.min.js">
+    <link rel="stylesheet" href="./style.css?v=32" />
+
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div id="scroll-progress" aria-hidden="true"></div>
 
-    <!-- Preloader -->
-    <div id="preloader" role="status" aria-live="polite" aria-label="Loading">
-        <div class="loader">
-            <div class="spinner" aria-hidden="true"></div>
-            <span>Loading…</span>
-        </div>
-    </div>
+    <!-- Point cloud of a cave flight, rendered by main.js -->
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div class="scene-shade" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <span class="drone-label mono" aria-hidden="true">Drone</span>
 
-    <!-- Navbar -->
-    <nav class="glass-navbar" aria-label="Primary">
+    <header class="nav">
         <div class="nav-inner">
-            <img class="logo" src="./assets/Navigation.svg" alt="StateQ Dynamics Logo" style="width: 60px;" />
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header id="home" class="hero-section">
-        <div class="container hero-content" data-reveal>
-            <img src="./assets/Navigation.svg" style="width: 350px;" alt="StateQ Logo" />
-            <h1 class="glow">StateQ Dynamics Pvt. Ltd.</h1>
-            <p id="tagline" style="height: 30px;" class="typewriter"></p>
-            <p>We are a deep-tech startup incubated at Technology
-                Innovation Foundation of IIT Palakkad (TECHIN).</p>
-            <!-- <div class="hero-ctas">
-                <a href="#contact" class="btn-outline" data-scroll>Founders</a>
-            </div> -->
-            <!-- <div class="scroll-down">&#8595;</div> -->
+            <a href="#top" class="nav-brand" aria-label="StateQ Dynamics, back to top">
+                <img class="on-dark" src="./assets/Navigation.svg" alt="" width="44" height="44" />
+                <img class="on-light" src="./assets/Navigationclr.svg" alt="" width="44" height="44" />
+                <span>StateQ Dynamics</span>
+            </a>
+            <nav aria-label="Primary">
+                <ul class="nav-links">
+                    <li><a href="#how">How it works</a></li>
+                    <li><a href="#applications">Uses</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <button class="theme-toggle" type="button" aria-label="Switch to light theme"><span aria-hidden="true"></span></button>
         </div>
     </header>
 
-    <!-- About -->
-    <section id="about" class="about-section">
-        <div class="container" data-reveal>
-            <h2 class="section-title">About Us</h2>
-            <p class="section-desc">
-            At StateQ Dynamics, we design intelligent digital twins that bring physical systems to life in software. From sensor fusion to resilient navigation and real-time simulation, our technologies enable machines to perceive, adapt, and recover — even in the most demanding environments. We’re building the virtual backbone for autonomous, reliable, and intelligent systems across agriculture, robotics, education, and beyond.
-            </p>
-            <h3 class="section-title">Our Vision</h3>
-            <!-- <p class="section-desc">To pioneer intelligent, scalable systems that power the future of communication, and simulation.</p> -->
-            <p class="section-desc">
-            Our vision is to create a world where every physical system has a dynamic, intelligent digital twin — enabling machines to perceive, adapt, and operate with resilience in any environment.
-            </p>
-
-        </div>
-    </section>
-
-
-    <!-- Founders Section -->
-    <section id="contact" class="contact-section">
-        <div class="container" data-reveal>
-            <div class="cta">
-                <section id="founders" class="founders-section">
-                    <div class="container" data-reveal>
-                        <h2 class="section-title">Meet the Founders</h2>
-                        <div class="founder-cards">
-
-                            <a href="https://www.linkedin.com/in/aneesh-swaminathan/" target="_blank"
-                                rel="noopener noreferrer">
-                                <div class="card">
-                                    <div class="card__hero-header"><img src="./assets/two.jpeg"
-                                            alt="Mr. Aneesh Swaminathan" loading="lazy"></div>
-                                    <h3>Mr. Aneesh Swaminathan</h3>
-                                </div>
-                            </a>
-
-
-                            <a href="https://www.linkedin.com/in/shaikshavali-c-a5886418/" target="_blank"
-                                rel="noopener noreferrer">
-                                <div class="card">
-                                    <div class="card__hero-header"><img src="./assets/one.jpeg"
-                                            alt="Dr. Shaikshavali Chitraganti" loading="lazy"></div>
-                                    <h3>Dr. Shaikshavali Chitraganti</h3>
-                                </div>
-                            </a>
-
-                            <a href="https://www.linkedin.com/in/nandagopan-kalathil/" target="_blank"
-                                rel="noopener noreferrer">
-                                <div class="card">
-                                    <div class="card__hero-header"><img src="./assets/three.jpeg"
-                                            alt="Mr. Nandagopan Kalathil" loading="lazy"></div>
-                                    <h3>Mr. Nandagopan Kalathil</h3>
-                                </div>
-                            </a>
-
-                        </div>
-                    </div>
-                </section>
+    <main id="main">
+        <!-- Hero -->
+        <section id="top" class="hero">
+            <div class="container hero-inner">
+                <h1 class="hero-title" data-split>Navigation for places GPS can't reach.</h1>
+                <p class="hero-lede" data-fade>
+                    We build autonomous drones that fly and map without GPS: in underground mines, tunnels,
+                    tanks, and anywhere the satellite signal stops.
+                </p>
+                <div class="hero-actions" data-fade>
+                    <a href="#how" class="btn">See a flight <span aria-hidden="true">↓</span></a>
+                    <a href="#about" class="link">About StateQ</a>
+                </div>
             </div>
-        </div>
-    </section>
+            <p class="scene-caption mono" data-fade>
+                <span class="dot" aria-hidden="true"></span>
+                Background: a 3D map our drone built while flying in through the entrance
+            </p>
+        </section>
 
-    <!-- Footer -->
-    <footer>
-        <img src="./assets/Navigation.svg" alt="Logo" style="width: 50px;">
-        <p>StateQ Dynamics Pvt. Ltd.</p>
-        <div class="license">© <span id="year"></span> All rights reserved.</div>
+        <!-- Problem -->
+        <section id="problem" class="problem">
+            <div class="container problem-inner" data-reveal>
+                <p class="eyebrow">The problem</p>
+                <h2 class="problem-line">Some places are too dangerous to send a person in first.</h2>
+                <p class="section-lede">After a blast underground, inside a tank or a tunnel, or in a collapsed
+                    building, someone still has to go in and look before anyone else can. It is slow, it is often the
+                    riskiest part of the job, and everything else waits on it.</p>
+            </div>
+        </section>
+
+        <!-- Scroll-driven flight story: main.js flies the drone along its logged path -->
+        <section id="how" class="story" aria-label="How it works, step by step">
+            <div class="story-sticky">
+                <div class="container story-grid">
+                    <p class="scene-mode mono" aria-hidden="true">
+                        <span data-mode="world">Simulated cave</span>
+                        <span data-mode="lidar">What the drone maps</span>
+                    </p>
+                    <div class="story-copy">
+                        <p class="eyebrow">How it works</p>
+                        <ol class="steps">
+                            <li class="step is-active">
+                                <span class="step-num mono">01</span>
+                                <h2>Hold back</h2>
+                                <p>Everyone stays outside the danger zone, like a mine crew after a blast.</p>
+                            </li>
+                            <li class="step">
+                                <span class="step-num mono">02</span>
+                                <h2>The drone flies in</h2>
+                                <p>It launches and flies through the space on its own. No GPS, no pilot.</p>
+                            </li>
+                            <li class="step">
+                                <span class="step-num mono">03</span>
+                                <h2>Maps it in 3D</h2>
+                                <p>It keeps track of where it is while building a live LiDAR map of the space.</p>
+                            </li>
+                            <li class="step">
+                                <span class="step-num mono">04</span>
+                                <h2>Decide from safe ground</h2>
+                                <p>The team reviews the map from outside and decides what is safe, sooner.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The drone: 3D model rendered by main.js -->
+        <section id="drone" class="drone">
+            <div class="container drone-grid">
+                <div class="drone-copy" data-reveal>
+                    <p class="eyebrow">The drone</p>
+                    <h2 class="section-title">Small enough for tight spaces.</h2>
+                    <p class="section-lede">A compact 16-inch airframe, sized for mine headings and stopes, tunnels,
+                        tanks and ducts, carrying everything it needs to fly on its own.</p>
+                    <dl class="attitude mono" aria-label="Model orientation">
+                        <div><dt>Roll</dt><dd data-att="roll">0°</dd></div>
+                        <div><dt>Pitch</dt><dd data-att="pitch">0°</dd></div>
+                        <div><dt>Yaw</dt><dd data-att="yaw">0°</dd></div>
+                    </dl>
+                    <p class="drone-hint mono"><span class="hint-fine">Drag to roll, pitch and turn it · Shift+drag to roll · double-click to level</span><span class="hint-touch">Swipe sideways to turn it · double-tap to level</span></p>
+                </div>
+                <div class="drone-stage">
+                    <canvas id="drone-canvas" aria-label="3D model of the StateQ drone" role="img"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Applications -->
+        <section id="applications" class="applications">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <p class="eyebrow">Where it works</p>
+                    <h2 class="section-title">Wherever GPS and people can't safely go.</h2>
+                </div>
+                <ul class="uses">
+                    <li data-reveal><h3 class="use-name">Underground mines</h3><p class="use-desc">Post-blast inspection and stope mapping, without sending a person in first.</p></li>
+                    <li data-reveal><h3 class="use-name">Tunnels and underground civil</h3><p class="use-desc">Map and inspect tunnels under construction or in service.</p></li>
+                    <li data-reveal><h3 class="use-name">Confined industrial spaces</h3><p class="use-desc">Tanks, silos, boilers and other enclosed plant spaces.</p></li>
+                    <li data-reveal><h3 class="use-name">Infrastructure inspection</h3><p class="use-desc">Culverts, shafts and the undersides of bridges, where GPS drops out.</p></li>
+                    <li data-reveal><h3 class="use-name">Search and rescue</h3><p class="use-desc">Look inside collapsed buildings and disaster sites before rescuers go in.</p></li>
+                    <li data-reveal><h3 class="use-name">Defence</h3><p class="use-desc">Reconnaissance indoors and wherever GPS is jammed or denied.</p></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- About -->
+        <section id="about" class="about">
+            <div class="container about-grid">
+                <div data-reveal>
+                    <p class="eyebrow">About us</p>
+                    <h2 class="section-title">Drones that find their own way.</h2>
+                </div>
+                <div class="about-copy" data-reveal>
+                    <p>StateQ Dynamics builds autonomous drones that navigate and map without GPS, starting with
+                        underground mines. They go into dangerous, confined spaces in place of a person, so inspections
+                        are safer and work restarts sooner.</p>
+                    <p>We are built inside the IIT Palakkad research ecosystem.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Supporters -->
+        <section id="support" class="support" aria-labelledby="support-title">
+            <div class="container" data-reveal>
+              <div class="support-inner">
+                <h2 id="support-title" class="eyebrow">Supported by</h2>
+                <ul class="supporters">
+                    <li>
+                        <img class="on-dark" src="./assets/partners/iptif.webp" alt="IIT Palakkad Technology IHub Foundation (IPTIF)" width="480" height="99" loading="lazy" />
+                        <img class="on-light" src="./assets/partners/iptif-dark-text.webp" alt="IIT Palakkad Technology IHub Foundation (IPTIF)" width="480" height="99" loading="lazy" />
+                    </li>
+                    <li class="logo-techin">
+                        <img src="./assets/partners/techin.webp" alt="TECHIN, IIT Palakkad" width="212" height="220" loading="lazy" decoding="async" />
+                    </li>
+                    <li>
+                        <img class="on-dark" src="./assets/partners/igenova.webp" alt="i-GENOVA, IPTIF's growth engine for new-age venture acceleration" width="362" height="112" loading="lazy" decoding="async" />
+                        <img class="on-light" src="./assets/partners/igenova-dark-text.webp" alt="i-GENOVA, IPTIF's growth engine for new-age venture acceleration" width="362" height="112" loading="lazy" decoding="async" />
+                    </li>
+                </ul>
+              </div>
+            </div>
+        </section>
+
+        <!-- Team -->
+        <section id="team" class="team">
+            <div class="container">
+                <div class="section-head" data-reveal>
+                    <p class="eyebrow">Team</p>
+                    <h2 class="section-title">The people behind StateQ.</h2>
+                </div>
+                <ul class="founders">
+                    <li data-reveal>
+                        <a class="founder" href="https://www.linkedin.com/in/shaikshavali-chitraganti-a5886418/" target="_blank" rel="noopener noreferrer">
+                            <img src="./assets/one.webp" alt="Portrait of Dr. Shaikshavali Chitraganti" width="720" height="727" loading="lazy" decoding="async" />
+                            <span class="founder-name">Dr. Shaikshavali Chitraganti</span>
+                            <span class="founder-link mono">LinkedIn ↗</span>
+                        </a>
+                    </li>
+                    <li data-reveal>
+                        <a class="founder" href="https://www.linkedin.com/in/nandagopan-kalathil/" target="_blank" rel="noopener noreferrer">
+                            <img src="./assets/three.webp" alt="Portrait of Nandagopan Kalathil" width="720" height="751" loading="lazy" decoding="async" />
+                            <span class="founder-name">Nandagopan Kalathil</span>
+                            <span class="founder-link mono">LinkedIn ↗</span>
+                        </a>
+                    </li>
+                    <li data-reveal>
+                        <a class="founder" href="https://www.linkedin.com/in/nobz/" target="_blank" rel="noopener noreferrer">
+                            <img src="./assets/four.webp" alt="Portrait of Noble A" width="720" height="900" loading="lazy" decoding="async" />
+                            <span class="founder-name">Noble A</span>
+                            <span class="founder-link mono">LinkedIn ↗</span>
+                        </a>
+                    </li>
+                    <li data-reveal>
+                        <a class="founder" href="https://www.linkedin.com/in/sarveshk135/" target="_blank" rel="noopener noreferrer">
+                            <img src="./assets/five.webp" alt="Portrait of Sarvesh K" width="400" height="500" loading="lazy" decoding="async" />
+                            <span class="founder-name">Sarvesh K</span>
+                            <span class="founder-link mono">LinkedIn ↗</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <!-- Contact -->
+        <section id="contact" class="contact">
+            <div class="container" data-reveal>
+                <p class="eyebrow">Reach out</p>
+                <h2 class="contact-heading"><a class="contact-mail" href="mailto:nandu@stateq.in">nandu@stateq.in <span aria-hidden="true">↗</span></a></h2>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <img class="on-dark" src="./assets/Navigation.svg" alt="" width="56" height="56" />
+                <img class="on-light" src="./assets/Navigationclr.svg" alt="" width="56" height="56" />
+                <div>
+                    <p>StateQ Dynamics Pvt. Ltd.</p>
+                    <p class="muted">Incubated at TECHIN, IIT Palakkad</p>
+                </div>
+            </div>
+            <p class="muted mono">© <span id="year">2026</span> All rights reserved.</p>
+        </div>
     </footer>
 
-    <!-- Back to Top -->
-    <button id="backToTop" aria-label="Back to top" title="Back to top">&#8679;</button>
-
-    <!-- External Script -->
-    <script src="main.js"></script>
+    <script defer src="./assets/vendor/gsap/gsap.min.js"></script>
+    <script defer src="./assets/vendor/gsap/ScrollTrigger.min.js"></script>
+    <script type="module" src="./main.js?v=39"></script>
 </body>
 
 </html>
