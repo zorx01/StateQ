@@ -1,5 +1,5 @@
-# Static site: no build. Netlify runs this in its own clone, so deleting here only keeps
-# the asset-building scripts (_tools/) off the live site. (GitHub Pages skips _ folders on its own.)
+# Static site, no real build: copy the site into dist/ (the folder Netlify publishes),
+# leaving out the asset-building scripts in _tools/. (GitHub Pages skips _ folders on its own.)
 [build]
-  command = "rm -rf _tools"
-  publish = "."
+  command = "mkdir -p dist && find . -maxdepth 1 ! -name . ! -name dist ! -name _tools ! -name .git -exec cp -r -t dist {} +"
+  publish = "dist"
