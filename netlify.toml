@@ -1,0 +1,5 @@
+# Static site: no build. Netlify runs this in its own clone, so deleting here only keeps
+# the asset-building scripts (_tools/) off the live site. (GitHub Pages skips _ folders on its own.)
+[build]
+  command = "rm -rf _tools"
+  publish = "."
